@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>菜谱转盘 - 今天吃什么</title>
+    <title>孕妇菜谱转盘 - 今天吃什么</title>
     <style>
         * {
             margin: 0;
@@ -273,6 +273,133 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
+        /* 菜单列表页面样式 */
+        .menu-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .menu-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 10px 25px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            color: #666;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .menu-card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .menu-card-content {
+            padding: 20px;
+        }
+
+        .menu-card-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .menu-card-category {
+            display: inline-block;
+            padding: 5px 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        .menu-card-desc {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        .menu-card-preference {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .pref-btn {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .pref-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .pref-btn.liked {
+            background: #d4edda;
+            border-color: #2ecc71;
+            color: #155724;
+        }
+
+        .pref-btn.disliked {
+            background: #f8d7da;
+            border-color: #e74c3c;
+            color: #721c24;
+        }
+
         .history-list {
             display: grid;
             gap: 20px;
@@ -475,8 +602,13 @@
             }
 
             .history-container,
-            .stats-container {
+            .stats-container,
+            .menu-container {
                 padding: 20px;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
             }
 
             .history-item {
@@ -516,6 +648,7 @@
 
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="switchPage('wheel')">🎡 转盘选菜</button>
+            <button class="nav-tab" onclick="switchPage('menu')">📋 菜单列表</button>
             <button class="nav-tab" onclick="switchPage('history')">📜 历史记录</button>
             <button class="nav-tab" onclick="switchPage('stats')">📊 统计汇总</button>
         </div>
@@ -529,6 +662,23 @@
                     <div class="wheel" id="wheel"></div>
                 </div>
                 <button class="spin-btn" id="spinBtn" onclick="spinWheel()">开始转动</button>
+            </div>
+        </div>
+
+        <!-- 菜单列表页面 -->
+        <div id="menu-page" class="page">
+            <div class="menu-container">
+                <h2 style="color: #667eea; margin-bottom: 30px;">📋 完整菜单列表</h2>
+                <div class="menu-filters">
+                    <button class="filter-btn active" onclick="filterMenu('all')">全部</button>
+                    <button class="filter-btn" onclick="filterMenu('鱼类')">鱼类</button>
+                    <button class="filter-btn" onclick="filterMenu('肉类')">肉类</button>
+                    <button class="filter-btn" onclick="filterMenu('海鲜类')">海鲜类</button>
+                    <button class="filter-btn" onclick="filterMenu('蔬菜类')">蔬菜类</button>
+                    <button class="filter-btn" onclick="filterMenu('豆制品')">豆制品</button>
+                    <button class="filter-btn" onclick="filterMenu('蛋类')">蛋类</button>
+                </div>
+                <div class="menu-grid" id="menuGrid"></div>
             </div>
         </div>
 
@@ -573,143 +723,143 @@
         const recipes = [
             {
                 id: 1,
-                name: '番茄炒蛋',
-                description: '经典家常菜，富含番茄红素和优质蛋白，营养丰富，酸甜可口，开胃下饭。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/a861f903-2e81-4a63-ad11-8793284746ab/image_1767782602_1_1.jpg',
-                category: '家常菜'
+                name: '清蒸鲈鱼',
+                description: '鲈鱼富含优质蛋白与DHA，清蒸保留营养，适合孕早期缓解孕吐。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/d33ea494-c370-4844-acd3-0f4d794eeb58/image_1767784341_1_1.jpg',
+                category: '鱼类'
             },
             {
                 id: 2,
-                name: '清蒸鲈鱼',
-                description: '鲜嫩可口，富含优质蛋白和DHA，有助于胎儿大脑发育，清淡营养。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/f5936430-0e7e-494a-96d3-93526d97f651/image_1767782608_1_1.jpg',
-                category: '海鲜类'
+                name: '鲫鱼豆腐汤',
+                description: '鲫鱼的优质蛋白与豆腐的植物蛋白互补，豆腐中的钙与鲫鱼中的维生素D协同，促进胎儿骨骼发育。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/3bea028b-1efe-4b80-9a6a-37847ac550bc/image_1767784349_1_1.jpg',
+                category: '鱼类'
             },
             {
                 id: 3,
-                name: '菠菜炒鸡蛋',
-                description: '富含叶酸和铁质，预防贫血，促进胎儿神经系统发育，营养全面。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/4f6750e7-e0a2-4b7d-89bc-5191c3fbd5aa/image_1767782615_1_1.jpg',
-                category: '蔬菜类'
+                name: '清蒸鳕鱼',
+                description: '鳕鱼是DHA含量最高的鱼类之一，肉质细腻，适合孕早期食用。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/60acc7a6-77a8-476f-b2fb-db01069ae2ba/image_1767784356_1_1.jpg',
+                category: '鱼类'
             },
             {
                 id: 4,
-                name: '红烧排骨',
-                description: '补钙佳品，肉质鲜嫩，富含蛋白质和钙质，有助于骨骼发育。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/d6862a78-78a3-4526-9ba8-89ad3a0df069/image_1767782623_1_1.jpg',
-                category: '肉类'
+                name: '清蒸三文鱼',
+                description: '三文鱼富含Omega-3脂肪酸（DHA+EPA），对胎儿大脑和视网膜发育至关重要，需彻底蒸熟。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/7818fd8b-a47e-4859-9db1-59e14c0523b4/image_1767784363_1_1.jpg',
+                category: '鱼类'
             },
             {
                 id: 5,
-                name: '冬瓜排骨汤',
-                description: '清热利尿，营养丰富，汤鲜味美，适合孕期消肿，补充营养。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/c0567365-9580-4e46-a693-97ee92ed84e2/image_1767782632_1_3.jpg',
-                category: '汤类'
+                name: '番茄牛肉煲',
+                description: '牛肉中的血红素铁与番茄中的维生素C结合，提高铁吸收率，番茄红素具抗氧化作用。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/3e5b8c48-3595-494e-9ece-18c35283e58d/image_1767784370_1_1.jpg',
+                category: '肉类'
             },
             {
                 id: 6,
-                name: '西兰花炒虾仁',
-                description: '高蛋白低脂肪，富含维生素C和钙质，营养均衡，色彩诱人。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/e465d4c4-9d71-4462-a828-7b69e774d7bf/image_1767782638_1_1.jpg',
-                category: '海鲜类'
+                name: '瘦肉炒黄瓜',
+                description: '瘦猪肉提供优质蛋白，黄瓜中的膳食纤维缓解孕期便秘，口感清爽。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/aba79190-ed75-4031-8f5f-9d601e51da10/image_1767784378_1_1.jpg',
+                category: '肉类'
             },
             {
                 id: 7,
-                name: '紫菜蛋花汤',
-                description: '富含碘和蛋白质，促进甲状腺功能，简单易做，清淡营养。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/2c970a79-519f-43f6-b237-eda5747bf219/image_1767782644_1_1.jpg',
-                category: '汤类'
+                name: '鸡肉炒西兰花',
+                description: '鸡胸肉是低脂肪高蛋白，西兰花中的叶酸预防胎儿神经管畸形，胡萝卜补充维生素A。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/c186fdc6-f060-46ad-9b0a-5c6df0af6eeb/image_1767784386_1_1.jpg',
+                category: '肉类'
             },
             {
                 id: 8,
-                name: '清炒芦笋',
-                description: '富含叶酸和膳食纤维，口感爽脆，有助于消化，预防便秘。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/a5f2a4cb-8961-4c99-b138-2d64872b4790/image_1767782650_1_1.jpg',
-                category: '蔬菜类'
+                name: '猪肝炒甜椒',
+                description: '猪肝是补血圣品（血红素铁），甜椒中的维生素C提升铁吸收率，适合孕期贫血孕妇。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/c68e778f-82dc-4ad3-9f7a-7d3f757ecb2a/image_1767784394_1_1.jpg',
+                category: '肉类'
             },
             {
                 id: 9,
-                name: '胡萝卜炖牛肉',
-                description: '富含胡萝卜素和铁质，补血养颜，增强免疫力，营养丰富。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/ceb54325-955a-4e0e-ac56-0da19600c520/image_1767782657_1_1.jpg',
+                name: '胡萝卜炒肉片',
+                description: '瘦猪肉提供血红素铁，胡萝卜中的β-胡萝卜素转化为维生素A，促进胎儿视力发育。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/5c0f1ee5-6d4c-4752-99ee-b909da8a8b55/image_1767784404_1_1.jpg',
                 category: '肉类'
             },
             {
                 id: 10,
-                name: '香菇炖鸡',
-                description: '滋补养生，富含蛋白质和多种维生素，增强体质，美味营养。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/79d06573-428f-4b86-8409-915744168c4c/image_1767782664_1_1.jpg',
+                name: '彩椒炒鸡胸肉',
+                description: '鸡胸肉低脂肪高蛋白，彩椒中的维生素C促进铁吸收，洋葱去除肉腥味。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/84ab48a4-c734-46d3-9fa3-56cefca58347/image_1767784412_1_1.jpg',
                 category: '肉类'
             },
             {
                 id: 11,
-                name: '清炒油麦菜',
-                description: '清淡爽口，富含维生素和膳食纤维，促进肠道蠕动，清热解毒。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/e0b84aed-250e-4d15-9bc6-eb2025744531/image_1767782670_1_1.jpg',
-                category: '蔬菜类'
+                name: '白灼虾',
+                description: '虾富含优质蛋白、钙与锌，白灼保留原汁原味，适合控制体重的孕妇。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/cac98b9c-1faf-4de4-9342-c0a123e175a4/image_1767784421_1_1.jpg',
+                category: '海鲜类'
             },
             {
                 id: 12,
-                name: '酸辣土豆丝',
-                description: '开胃下饭，富含维生素C和钾元素，口感爽脆，酸辣适中。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/966286d3-9677-4126-94a8-a509300d6209/image_1767782677_1_1.jpg',
+                name: '清炒西兰花',
+                description: '西兰花中的叶酸、维生素C与膳食纤维协同，预防胎儿畸形与便秘。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/a0aefcf6-b911-47e4-bacb-47ad6e948942/image_1767784428_1_1.jpg',
                 category: '蔬菜类'
             },
             {
                 id: 13,
-                name: '玉米排骨汤',
-                description: '香甜可口，富含蛋白质和维生素，滋补养生，适合孕期营养补充。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/93c6a5a0-dc5d-42cc-95dc-56fcc3669883/image_1767782683_1_1.jpg',
-                category: '汤类'
+                name: '清炒菠菜',
+                description: '菠菜中的铁与叶酸协同，预防孕期贫血，膳食纤维促进肠道蠕动。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/c875f5f7-e101-4d29-8609-6bc14452b068/image_1767784437_1_1.png',
+                category: '蔬菜类'
             },
             {
                 id: 14,
-                name: '蒜蓉娃娃菜',
-                description: '清淡营养，富含维生素和矿物质，蒜香浓郁，促进食欲。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/cb19599b-5d94-489e-b09e-625e50e5976e/image_1767782690_1_1.jpg',
+                name: '胡萝卜炒鸡蛋',
+                description: '胡萝卜中的β-胡萝卜素转化为维生素A，鸡蛋中的卵磷脂促进胎儿大脑发育。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/a40c7485-c235-446e-a5c9-286b743ff381/image_1767784445_1_1.jpg',
                 category: '蔬菜类'
             },
             {
                 id: 15,
-                name: '清炒莴笋',
-                description: '爽脆可口，富含钾元素和膳食纤维，利尿通便，清热解毒。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/ef623384-843e-47a9-9885-e69219239527/image_1767782696_1_1.jpg',
+                name: '番茄炒土豆片',
+                description: '土豆提供碳水化合物（能量），番茄中的维生素C促进铁吸收，番茄红素抗氧化。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/4a186cb6-d979-4385-b546-c909362a920b/image_1767784453_1_1.jpg',
                 category: '蔬菜类'
             },
             {
                 id: 16,
-                name: '鲫鱼豆腐汤',
-                description: '催乳佳品，富含优质蛋白和钙质，汤白味鲜，营养丰富。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/cb38b913-fda5-4551-843e-0450702915b0/image_1767782702_1_1.jpg',
-                category: '汤类'
+                name: '香菇炒青菜',
+                description: '香菇中的香菇多糖增强免疫力，青菜中的维生素C与膳食纤维促进消化。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/3b5c4182-6c5f-4733-bcce-3d9b723fc066/image_1767784463_1_1.jpg',
+                category: '蔬菜类'
             },
             {
                 id: 17,
-                name: '木耳炒肉',
-                description: '补血养颜，富含铁质和蛋白质，口感滑嫩，营养均衡。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/ebd985ec-f865-44ba-a488-c91c0c548838/image_1767782710_1_1.jpg',
-                category: '肉类'
+                name: '凉拌海带丝',
+                description: '海带中的碘预防孕期甲状腺功能异常，膳食纤维缓解便秘，黄瓜提升免疫力。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/5f10c9f0-e5e6-44f1-a24a-99fb34f2d99c/image_1767784472_1_1.jpg',
+                category: '蔬菜类'
             },
             {
                 id: 18,
-                name: '青椒炒鸡蛋',
-                description: '简单美味，富含维生素C和蛋白质，色彩鲜艳，营养丰富。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/93397064-48de-4170-b612-a0796b2e5a7b/image_1767782718_1_1.jpg',
-                category: '家常菜'
+                name: '鱼香蒸豆腐',
+                description: '豆腐中的植物蛋白与肉糜中的动物蛋白互补，大豆异黄酮调节内分泌。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/fa276bcb-bd3b-4582-b6d0-bfeac9d40266/image_1767784482_1_1.jpg',
+                category: '豆制品'
             },
             {
                 id: 19,
-                name: '山药炖排骨',
-                description: '健脾养胃，富含淀粉酶和蛋白质，滋补养生，易于消化。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/cd2b2966-1b0d-4eb2-b15a-685be7c1bb76/image_1767782725_1_1.jpg',
-                category: '汤类'
+                name: '虾仁蒸蛋',
+                description: '虾仁中的优质蛋白与鸡蛋中的蛋白协同，钙促进胎儿骨骼发育，蒸制保留营养。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/417156f5-fa9c-41a4-b7bf-eb58c3c9fa2f/image_1767784493_1_1.jpg',
+                category: '蛋类'
             },
             {
                 id: 20,
-                name: '南瓜小米粥',
-                description: '养胃安神，富含胡萝卜素和B族维生素，香甜软糯，易于消化。',
-                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/d48e2a60-21a4-4980-bab4-5aba2143a9bc/image_1767782733_1_1.jpg',
-                category: '主食类'
+                name: '菠菜豆腐汤',
+                description: '豆腐中的钙与菠菜中的铁协同，补充蛋白质与铁，汤清淡易消化。',
+                image: 'https://zhiyan-ai-agent-with-1258344702.cos.ap-guangzhou.tencentcos.cn/with/2281aa7a-3da5-46f2-acbe-0ed7410babd7/image_1767784501_1_1.jpg',
+                category: '豆制品'
             }
         ];
 
@@ -756,7 +906,9 @@
             document.getElementById(`${pageName}-page`).classList.add('active');
             event.target.classList.add('active');
             
-            if (pageName === 'history') {
+            if (pageName === 'menu') {
+                loadMenu();
+            } else if (pageName === 'history') {
                 loadHistory();
             } else if (pageName === 'stats') {
                 loadStats();
@@ -782,11 +934,20 @@
             const finalRotation = currentRotation + (360 * spins) + targetAngle;
             
             const wheel = document.getElementById('wheel');
+            wheel.style.transition = 'transform 6s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
             wheel.style.transform = `rotate(${finalRotation}deg)`;
-            currentRotation = finalRotation % 360;
             
             // 6秒后显示结果
             setTimeout(() => {
+                // 重置到标准位置，移除transition避免动画
+                const normalizedRotation = finalRotation % 360;
+                wheel.style.transition = 'none';
+                wheel.style.transform = `rotate(${normalizedRotation}deg)`;
+                currentRotation = normalizedRotation;
+                
+                // 强制重绘
+                wheel.offsetHeight;
+                
                 showResult();
                 isSpinning = false;
                 document.getElementById('spinBtn').disabled = false;
@@ -855,6 +1016,78 @@
             }
             
             localStorage.setItem('history', JSON.stringify(history));
+        }
+
+        // 加载菜单列表
+        let currentFilter = 'all';
+        
+        function loadMenu(filter = 'all') {
+            currentFilter = filter;
+            const preferences = JSON.parse(localStorage.getItem('preferences') || '{}');
+            const menuGrid = document.getElementById('menuGrid');
+            
+            const filteredRecipes = filter === 'all' 
+                ? recipes 
+                : recipes.filter(recipe => recipe.category === filter);
+            
+            if (filteredRecipes.length === 0) {
+                menuGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <h3>该分类暂无菜品</h3>
+                    </div>
+                `;
+                return;
+            }
+            
+            menuGrid.innerHTML = filteredRecipes.map(recipe => {
+                const pref = preferences[recipe.id];
+                const likeClass = pref === 'like' ? 'liked' : '';
+                const dislikeClass = pref === 'dislike' ? 'disliked' : '';
+                
+                return `
+                    <div class="menu-card">
+                        <img src="${recipe.image}" alt="${recipe.name}" class="menu-card-image">
+                        <div class="menu-card-content">
+                            <div class="menu-card-title">${recipe.name}</div>
+                            <span class="menu-card-category">${recipe.category}</span>
+                            <div class="menu-card-desc">${recipe.description}</div>
+                            <div class="menu-card-preference">
+                                <button class="pref-btn ${likeClass}" onclick="togglePreference(${recipe.id}, 'like')">
+                                    ❤️ ${pref === 'like' ? '已喜欢' : '喜欢'}
+                                </button>
+                                <button class="pref-btn ${dislikeClass}" onclick="togglePreference(${recipe.id}, 'dislike')">
+                                    👎 ${pref === 'dislike' ? '已标记' : '不喜欢'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 筛选菜单
+        function filterMenu(category) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            loadMenu(category);
+        }
+
+        // 切换偏好设置
+        function togglePreference(recipeId, type) {
+            const preferences = JSON.parse(localStorage.getItem('preferences') || '{}');
+            
+            // 如果已经是该偏好，则取消；否则设置为该偏好
+            if (preferences[recipeId] === type) {
+                delete preferences[recipeId];
+            } else {
+                preferences[recipeId] = type;
+            }
+            
+            localStorage.setItem('preferences', JSON.stringify(preferences));
+            loadMenu(currentFilter); // 重新加载当前筛选的菜单
         }
 
         // 加载历史记录
